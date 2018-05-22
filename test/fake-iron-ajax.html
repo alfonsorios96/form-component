@@ -1,0 +1,61 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="fake-iron-ajax">
+    <template>
+
+    </template>
+
+    <script>
+        /**
+         * `form-component`
+         *
+         *
+         * @customElement
+         * @polymer
+         * @demo demo/index.html
+         */
+        class FakeIronAjax extends Polymer.Element {
+            static get is() {
+                return 'fake-iron-ajax';
+            }
+
+            static get properties() {
+                return {
+                    lastResponse: {
+                        type: Object,
+                        value: {}
+                    }
+                };
+            }
+
+            generateRequest() {
+                const users = [
+                    {
+                        username: 'malforime',
+                        password: '1231231'
+                    },
+                    {
+                        username: 'jazur',
+                        password: '00002'
+                    },
+                    {
+                        username: 'aldo.aldaco',
+                        password: '4823742'
+                    },
+                    {
+                        username: 'other',
+                        password: 'aadadadma'
+                    }];
+                this.dispatchEvent(new CustomEvent('response', {
+                    bubbles: true,
+                    composed: true,
+                    detail: users
+                }));
+                this.set('lastResponse', users);
+            }
+
+        }
+
+        window.customElements.define(FakeIronAjax.is, FakeIronAjax);
+    </script>
+</dom-module>

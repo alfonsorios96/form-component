@@ -1,0 +1,97 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="form-component">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            paper-button {
+                margin-top: 20px;
+            }
+        </style>
+        <iron-ajax
+                id="http"
+                url="users.json"
+                handle-as="json"
+                on-response="_handleResponse"
+                debounce-duration="300"></iron-ajax>
+        <div class="container">
+            <h2>[[username]] [[password]]</h2>
+            <paper-input label="Username" value="{{username}}" required auto-validate
+                         error-message="The username is required" on-invalid-changed="validate"></paper-input>
+            <paper-input label="Password" value="{{password}}" required auto-validate
+                         error-message="The password is required" on-invalid-changed="validate"></paper-input>
+            <paper-button id="loginButton" on-click="login" disabled>Login</paper-button>
+        </div>
+    </template>
+
+    <script>
+        /**
+         * `form-component`
+         *
+         *
+         * @customElement
+         * @polymer
+         * @demo demo/index.html
+         */
+        class FormComponent extends Polymer.Element {
+            static get is() {
+                return 'form-component';
+            }
+
+            static get properties() {
+                return {
+                    username: {
+                        type: String,
+                        value: ''
+                    },
+                    password: {
+                        type: String,
+                        value: ''
+                    },
+                    users: {
+                        type: Array,
+                        value: []
+                    }
+                };
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.$.http.generateRequest();
+            }
+
+            login() {
+                this.dispatchEvent(new CustomEvent('check-user', {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        username: this.username,
+                        password: this.password
+                    }
+                }));
+            }
+
+            validate(event) {
+                if (this.username !== '' && this.password !== '') {
+                    this.$.loginButton.removeAttribute('disabled');
+                } else {
+                    this.$.loginButton.setAttribute('disabled', 'true');
+                }
+            }
+
+            _handleResponse() {
+                const response = this.$.http.lastResponse;
+                this.set('users', response);
+            }
+        }
+
+        window.customElements.define(FormComponent.is, FormComponent);
+    </script>
+</dom-module>

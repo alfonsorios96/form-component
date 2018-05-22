@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>form-component test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../form-component.html">
+    <link rel="import" href="./fake-iron-ajax.html">
+</head>
+<body>
+
+<test-fixture id="default">
+    <template>
+        <form-component></form-component>
+    </template>
+</test-fixture>
+
+<script>
+    suite('default cases', () => {
+
+        setup(function () {
+            replace('iron-ajax').with('fake-iron-ajax');
+            element = fixture('default');
+            elementShadowDom = element.shadowRoot;
+            const http = elementShadowDom.querySelector('#http');
+            http.generateRequest();
+            element.users = http.lastResponse;
+        });
+
+        test('Button is disable at initialize the component', () => {
+            const disabledStatus = elementShadowDom.querySelector('#loginButton').getAttribute('disabled');
+            assert.strictEqual(disabledStatus, 'true');
+        });
+
+        test('Button is able at validate the form', () => {
+            element.username = 'malforime';
+            element.password = '1231231';
+            element.validate();
+            const disabledStatus = elementShadowDom.querySelector('#loginButton').hasAttribute('disabled');
+            assert.strictEqual(disabledStatus, false);
+        });
+
+        test('Fired a check-user event if the data is validate at click over loginButton', (done) => {
+            element.username = 'malforime';
+            element.password = '1231231';
+            const button = elementShadowDom.querySelector('#loginButton');
+
+            element.addEventListener('check-user', (event) => {
+                assert.deepEqual(event.detail, {
+                    username: 'malforime',
+                    password: '1231231'
+                });
+                done();
+            });
+
+            button.click();
+        });
+
+        test('Validate if user exist in catalog', (done) => {
+            element.username = 'malforime';
+            element.password = '1231231';
+            const button = elementShadowDom.querySelector('#loginButton');
+
+            element.addEventListener('check-user', (event) => {
+                for (const user of element.users) {
+                    if (user.username === event.detail.username) {
+                        assert.strictEqual(user.password, event.detail.password);
+                        done();
+                    }
+                }
+
+            });
+
+            button.click();
+        });
+    });
+</script>
+
+</body>
+</html>
